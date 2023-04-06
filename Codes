@@ -179,106 +179,89 @@ def astar(forest, sr, sc, tr, tc):
 //
 
 
-Ex.6:Uncertainity Problems:
-theBoard = {'1': ' ' , '2': ' ' , '3': ' ' ,
-            '4': ' ' , '5': ' ' , '6': ' ' ,
-            '7': ' ' , '8': ' ' , '9': ' ' }
+Ex.6: Uncertainity Problems:
+size = 9
+#empty cells have value zero
+matrix = [
+    [5,3,0,0,7,0,0,0,0],
+    [6,0,0,1,9,5,0,0,0],
+    [0,9,8,0,0,0,0,6,0],
+    [8,0,0,0,6,0,0,0,3],
+    [4,0,0,8,0,3,0,0,1],
+    [7,0,0,0,2,0,0,0,6],
+    [0,6,0,0,0,0,2,8,0],
+    [0,0,0,4,1,9,0,0,5],
+    [0,0,0,0,8,0,0,7,9]]
 
-board_keys = []
+#print sudoku
+def print_sudoku():
+    for i in matrix:
+        print (i)
+#assign cells and check
+def number_unassigned(row, col):
+    num_unassign = 0
+    for i in range(0,size):
+        for j in range (0,size):
+            #cell is unassigned
+            if matrix[i][j] == 0:
+                row = i
+                col = j
+                num_unassign = 1
+                a = [row, col, num_unassign]
+                return a
+    a = [-1, -1, num_unassign]
+    return a
+#check validity of number 
+def is_safe(n, r, c):
+    #checking in row
+    for i in range(0,size):
+        #there is a cell with same value
+        if matrix[r][i] == n:
+            return False
+    #checking in column
+    for i in range(0,size):
+        #there is a cell with same value
+        if matrix[i][c] == n:
+            return False
+    row_start = (r//3)*3
+    col_start = (c//3)*3;
+    #checking submatrix
+    for i in range(row_start,row_start+3):
+        for j in range(col_start,col_start+3):
+            if matrix[i][j]==n:
+                return False
+    return True
 
-for key in theBoard:
-    board_keys.append(key)
+#check validity of number
+def solve_sudoku():
+    row = 0
+    col = 0
+    #if all cells are assigned then the sudoku is already solved
+    #pass by reference because number_unassigned will change the values of row and col
+    a = number_unassigned(row, col)
+    if a[2] == 0:
+        return True
+    row = a[0]
+    col = a[1]
+    #number between 1 to 9
+    for i in range(1,10):
+        #if we can assign i to the cell or not
+        #the cell is matrix[row][col]
+        if is_safe(i, row, col):
+            matrix[row][col] = i
+            #backtracking
+            if solve_sudoku():
+                return True
+            #f we can't proceed with this solution
+            #reassign the cell
+            matrix[row][col]=0
+    return False
 
-def printBoard(board):
-    print(board['7'] + '|' + board['8'] + '|' + board['9'])
-    print('-+-+-')
-    print(board['4'] + '|' + board['5'] + '|' + board['6'])
-    print('-+-+-')
-    print(board['1'] + '|' + board['2'] + '|' + board['3'])
+if solve_sudoku():
+    print_sudoku()
+else:
+    print("No solution")
 
-def game():
-
-    turn = 'X'
-    count = 0
-
-
-    for i in range(10):
-        printBoard(theBoard)
-        print("It's your turn," + turn + ".Move to which place?")
-
-        move = input()        
-
-        if theBoard[move] == ' ':
-            theBoard[move] = turn
-            count += 1
-        else:
-            print("That place is already filled.\nMove to which place?")
-            continue
-
-        if count >= 5:
-            if theBoard['7'] == theBoard['8'] == theBoard['9'] != ' ':
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")                
-                break
-            elif theBoard['4'] == theBoard['5'] == theBoard['6'] != ' ': 
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['1'] == theBoard['2'] == theBoard['3'] != ' ': # across the bottom
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['1'] == theBoard['4'] == theBoard['7'] != ' ': # down the left side
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['2'] == theBoard['5'] == theBoard['8'] != ' ': # down the middle
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['3'] == theBoard['6'] == theBoard['9'] != ' ': # down the right side
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break 
-            elif theBoard['7'] == theBoard['5'] == theBoard['3'] != ' ': # diagonal
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['1'] == theBoard['5'] == theBoard['9'] != ' ': # diagonal
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break 
-
-        # If neither X nor O wins and the board is full, we'll declare the result as 'tie'.
-        if count == 9:
-            print("\nGame Over.\n")                
-            print("It's a Tie!!")
-
-        # Now we have to change the player after every move.
-        if turn =='X':
-            turn = 'O'
-        else:
-            turn = 'X'        
-    
-    # Now we will ask if player wants to restart the game or not.
-    restart = input("Do want to play Again?(y/n)")
-    if restart == "y" or restart == "Y":  
-        for key in board_keys:
-            theBoard[key] = " "
-
-        game()
-
-if __name__ == "__main__":
-    game()
-    
 //
 
 
